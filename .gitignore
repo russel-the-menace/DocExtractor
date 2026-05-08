@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.DS_Store
+
+# Build artifacts
+build/
+dist/
+*.spec
+
+# Runtime outputs
+output/
+logs/
+doc88/work/
+doc88/ffdec/
+doc88/svg2pdf
+doc88/svg2pdf.exe
+doc88/svg2pdf-*.tar.gz
+doc88/svg2pdf-*.zip
+
