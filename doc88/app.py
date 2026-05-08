@@ -22,7 +22,7 @@ class get_cfg:
         self.content = ""
         self.data = ""
         self.sta = 0
-        if not self.get_main() and choose("Do you want to use CDN?(Y/n): "):
+        if not self.get_main():
             self.__init__("https://doc88.piglin.eu.org" + url[url.find("doc88.com/") + 9 :])
 
     def req(self):
@@ -53,8 +53,6 @@ def init(config: dict) -> None:
     cfg2.swf_path = cfg2.dir_path + cfg2.o_swf_path
     cfg2.svg_path = cfg2.dir_path + cfg2.o_svg_path
     cfg2.pdf_path = cfg2.dir_path + cfg2.o_pdf_path
-    if os.path.exists(ospath(cfg2.dir_path)) and not choose("exists"):
-        raise Exception("Canceled.")
     os.makedirs(ospath(cfg2.dir_path), exist_ok=True)
     if not os.path.exists(ospath(f"{cfg2.dir_path}index.json")):
         write_file(
@@ -83,48 +81,42 @@ def main(encoded_str, more=False):
     if int(cfg.p_pagecount) != cfg.p_count:
         more = True
         print(f"Preview pages: {cfg.p_countinfo}, direct pages: {cfg.p_count}")
-    if not choose("开始提取？ (Y/n): "):
-        return False
     if cfg.p_download == "1":
-        if choose("down"):
-            try:
-                doc_format = str.lower(cfg.p_doc_format) if config["if_zip"] == 0 else "zip"
-                os.makedirs(ospath(cfg2.o_out_path), exist_ok=True)
-                file_path = os.path.join(cfg2.o_out_path, cfg.p_name + "." + doc_format)
-                download(
-                    get_request(
-                        "https://www.doc88.com/doc.php?act=download&pcode=" + cfg.p_code
-                    ).text,
-                    file_path,
-                )
-                print("Saved: " + file_path)
-                return True
-            except Exception as err:
-                print("Download error: " + str(err))
-                logw("Download error: " + str(err))
-    if more:
-        if choose("即将通过扫描获取页面，是否继续（否则正常下载）？ (Y/n): "):
-            print("Scanning extra pages...")
-            newpageids = []
-            cfg.p_count = 0
-            for i in range(1, cfg.ph_nums() + 1):
-                get = get_more(cfg, i, cfg2.dir_path, cfg.p_count)
-                get.start()
-                newpageids += get.newpageids
-                cfg.p_count += len(get.newpageids)
-                del get
-            cfg.pageids = newpageids
-            config["pageInfo"] = encode(",".join(newpageids))
-            config["p_count"] = cfg.p_count
-            write_file(
-                bytes(json.dumps(config), encoding="utf-8"),
-                cfg2.dir_path + "index.json",
+        try:
+            doc_format = str.lower(cfg.p_doc_format) if config["if_zip"] == 0 else "zip"
+            os.makedirs(ospath(cfg2.o_out_path), exist_ok=True)
+            file_path = os.path.join(cfg2.o_out_path, cfg.p_name + "." + doc_format)
+            download(
+                get_request(
+                    "https://www.doc88.com/doc.php?act=download&pcode=" + cfg.p_code
+                ).text,
+                file_path,
             )
-            print(f"Scanned pages: {cfg.p_count}")
-            del newpageids
-            time.sleep(2)
-        else:
-            more = False
+            print("Saved: " + file_path)
+            return True
+        except Exception as err:
+            print("Download error: " + str(err))
+            logw("Download error: " + str(err))
+    if more:
+        print("Scanning extra pages...")
+        newpageids = []
+        cfg.p_count = 0
+        for i in range(1, cfg.ph_nums() + 1):
+            get = get_more(cfg, i, cfg2.dir_path, cfg.p_count)
+            get.start()
+            newpageids += get.newpageids
+            cfg.p_count += len(get.newpageids)
+            del get
+        cfg.pageids = newpageids
+        config["pageInfo"] = encode(",".join(newpageids))
+        config["p_count"] = cfg.p_count
+        write_file(
+            bytes(json.dumps(config), encoding="utf-8"),
+            cfg2.dir_path + "index.json",
+        )
+        print(f"Scanned pages: {cfg.p_count}")
+        del newpageids
+        time.sleep(2)
     try:
         if not more:
             get_swf(cfg)

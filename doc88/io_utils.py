@@ -30,17 +30,7 @@ def special_path(path):
 
 
 def choose(text=""):
-    if text == "exists":
-        text = "The directory already exists!\nContinue? (Y/n): "
-    elif text == "down":
-        text = "是否下载，否则继续提取预览文档？ (Y/n): "
-    elif text == "":
-        text = "Continue? (Y/n): "
-    try:
-        user_input = input(text)
-    except KeyboardInterrupt:
-        exit()
-    return user_input in {"Y", "y"}
+    return True
 
 
 def logw(t: str):

@@ -2,7 +2,6 @@ import os
 import sys
 
 from doc88 import app as doc88_app
-from doc88.io_utils import choose
 
 URLS_FILE = "urls.txt"
 
@@ -45,9 +44,15 @@ def main() -> None:
                 save_urls(urls[1:])
         else:
             print("Unsupported URL.")
+            ok = False
 
-        if not choose():
-            break
+        if not ok:
+            try:
+                user_input = input("Error occurred. Continue? (Y/n): ")
+            except KeyboardInterrupt:
+                break
+            if user_input not in {"Y", "y", ""}:
+                break
 
 
 if __name__ == "__main__":
